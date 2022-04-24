@@ -17,7 +17,8 @@ UTIL_OBJ=utilities/polybench.o
 BIN=01.adi \
 	02.seidel2d \
 	03.fdtd2d \
-	04.regdetect \
+	04.fdtdapml \
+	10.regdetect \
 
 all: $(BIN)
 
@@ -39,6 +40,12 @@ FDTD2D_OBJ = $(UTIL_OBJ) \
 			stencils/fdtd-2d/fdtd-2d.o
 
 $(FDTD2D_OBJ): %.o: %.c
+	$(CLANG) $(CLANGFLAGS) $(UTIL_INC) $^ -o $@
+
+FDTDAPML_OBJ = $(UTIL_OBJ) \
+			stencils/fdtd-apml/fdtd-apml.o
+
+$(FDTDAPML_OBJ): %.o: %.c
 	$(CLANG) $(CLANGFLAGS) $(UTIL_INC) $^ -o $@
 
 REGDETECT_OBJ = $(UTIL_OBJ) \
@@ -70,8 +77,14 @@ $(REGDETECT_OBJ): %.o: %.c
 	llc -O0 bin/$@.bc -filetype=obj -o bin/$@.o
 	$(CLANG) bin/$@.o -o bin/$@ 
 
+04.fdtdapml: $(FDTDAPML_OBJ)
+	mkdir -p bin
+	llvm-link $^ -o bin/$@.bc
+	llc -O0 bin/$@.bc -filetype=obj -o bin/$@.o
+	$(CLANG) bin/$@.o -o bin/$@ 
 
-04.regdetect: $(REGDETECT_OBJ)
+
+10.regdetect: $(REGDETECT_OBJ)
 	mkdir -p bin
 	llvm-link $^ -o bin/$@.bc
 	llc -O0 bin/$@.bc -filetype=obj -o bin/$@.o
@@ -81,5 +94,6 @@ clean:
 	rm -f $(ADI_OBJ) bin/01.adi* \
 		$(SEIDEL2D_OBJ) bin/02.seidel2d* \
 		$(FDTD2D_OBJ) bin/03.fdtd2d* \
-		$(REGDETECT_OBJ) bin/04.regdetect* \
+		$(FDTDAPML_OBJ) bin/04.fdtdapml* \
+		$(REGDETECT_OBJ) bin/10.regdetect* \
 	 	
