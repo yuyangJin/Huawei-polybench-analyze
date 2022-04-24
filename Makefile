@@ -2,11 +2,13 @@
 CC=gcc
 CLANG=clang
 MPICC=mpicc
+LLC=llc
 
 # Compiler flags
 CFLAGS=-O3 -std=gnu11
 # OMPFLAGS=-fopenmp $(CFLAGS)
 CLANGFLAGS=-g -c -emit-llvm -O1
+LLCFLAGS=-O3
 #-DPOLYBENCH_DUMP_ARRAYS
 
 # utilities
@@ -74,7 +76,7 @@ $(REGDETECT_OBJ): %.o: %.c
 01.adi: $(ADI_OBJ)
 	mkdir -p bin
 	llvm-link $^ -o bin/$@.bc
-	llc -O0 bin/$@.bc -filetype=obj -o bin/$@.o
+	$(LLC) $(LLCFLAGS) bin/$@.bc -filetype=obj -o bin/$@.o
 	$(CLANG) bin/$@.o -o bin/$@ 
 
 #-DPOLYBENCH_DUMP_ARRAYS
@@ -82,37 +84,37 @@ $(REGDETECT_OBJ): %.o: %.c
 02.seidel2d: $(SEIDEL2D_OBJ)
 	mkdir -p bin
 	llvm-link $^ -o bin/$@.bc
-	llc -O0 bin/$@.bc -filetype=obj -o bin/$@.o
+	$(LLC) $(LLCFLAGS) bin/$@.bc -filetype=obj -o bin/$@.o
 	$(CLANG) bin/$@.o -o bin/$@ 
 
 03.fdtd2d: $(FDTD2D_OBJ)
 	mkdir -p bin
 	llvm-link $^ -o bin/$@.bc
-	llc -O0 bin/$@.bc -filetype=obj -o bin/$@.o
+	$(LLC) $(LLCFLAGS) bin/$@.bc -filetype=obj -o bin/$@.o
 	$(CLANG) bin/$@.o -o bin/$@ 
 
 04.fdtdapml: $(FDTDAPML_OBJ)
 	mkdir -p bin
 	llvm-link $^ -o bin/$@.bc
-	llc -O0 bin/$@.bc -filetype=obj -o bin/$@.o
+	$(LLC) $(LLCFLAGS) bin/$@.bc -filetype=obj -o bin/$@.o
 	$(CLANG) bin/$@.o -o bin/$@ 
 
 05.jacobi-1d-imper: $(JACOBI_1D_IMPER_OBJ)
 	mkdir -p bin
 	llvm-link $^ -o bin/$@.bc
-	llc -O0 bin/$@.bc -filetype=obj -o bin/$@.o
+	$(LLC) $(LLCFLAGS) bin/$@.bc -filetype=obj -o bin/$@.o
 	$(CLANG) bin/$@.o -o bin/$@ 
 
 06.jacobi-2d-imper: $(JACOBI_2D_IMPER_OBJ)
 	mkdir -p bin
 	llvm-link $^ -o bin/$@.bc
-	llc -O0 bin/$@.bc -filetype=obj -o bin/$@.o
+	$(LLC) $(LLCFLAGS) bin/$@.bc -filetype=obj -o bin/$@.o
 	$(CLANG) bin/$@.o -o bin/$@ 
 
 10.regdetect: $(REGDETECT_OBJ)
 	mkdir -p bin
 	llvm-link $^ -o bin/$@.bc
-	llc -O0 bin/$@.bc -filetype=obj -o bin/$@.o
+	$(LLC) $(LLCFLAGS) bin/$@.bc -filetype=obj -o bin/$@.o
 	$(CLANG) bin/$@.o -o bin/$@ 
 
 clean:
