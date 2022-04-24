@@ -18,6 +18,8 @@ BIN=01.adi \
 	02.seidel2d \
 	03.fdtd2d \
 	04.fdtdapml \
+	05.jacobi-1d-imper \
+	06.jacobi-2d-imper \
 	10.regdetect \
 
 all: $(BIN)
@@ -46,6 +48,18 @@ FDTDAPML_OBJ = $(UTIL_OBJ) \
 			stencils/fdtd-apml/fdtd-apml.o
 
 $(FDTDAPML_OBJ): %.o: %.c
+	$(CLANG) $(CLANGFLAGS) $(UTIL_INC) $^ -o $@
+
+JACOBI_1D_IMPER_OBJ = $(UTIL_OBJ) \
+			stencils/jacobi-1d-imper/jacobi-1d-imper.o
+
+$(JACOBI_1D_IMPER_OBJ): %.o: %.c
+	$(CLANG) $(CLANGFLAGS) $(UTIL_INC) $^ -o $@
+
+JACOBI_2D_IMPER_OBJ = $(UTIL_OBJ) \
+			stencils/jacobi-2d-imper/jacobi-2d-imper.o
+
+$(JACOBI_2D_IMPER_OBJ): %.o: %.c
 	$(CLANG) $(CLANGFLAGS) $(UTIL_INC) $^ -o $@
 
 REGDETECT_OBJ = $(UTIL_OBJ) \
@@ -83,6 +97,17 @@ $(REGDETECT_OBJ): %.o: %.c
 	llc -O0 bin/$@.bc -filetype=obj -o bin/$@.o
 	$(CLANG) bin/$@.o -o bin/$@ 
 
+05.jacobi-1d-imper: $(JACOBI_1D_IMPER_OBJ)
+	mkdir -p bin
+	llvm-link $^ -o bin/$@.bc
+	llc -O0 bin/$@.bc -filetype=obj -o bin/$@.o
+	$(CLANG) bin/$@.o -o bin/$@ 
+
+06.jacobi-2d-imper: $(JACOBI_2D_IMPER_OBJ)
+	mkdir -p bin
+	llvm-link $^ -o bin/$@.bc
+	llc -O0 bin/$@.bc -filetype=obj -o bin/$@.o
+	$(CLANG) bin/$@.o -o bin/$@ 
 
 10.regdetect: $(REGDETECT_OBJ)
 	mkdir -p bin
@@ -95,5 +120,7 @@ clean:
 		$(SEIDEL2D_OBJ) bin/02.seidel2d* \
 		$(FDTD2D_OBJ) bin/03.fdtd2d* \
 		$(FDTDAPML_OBJ) bin/04.fdtdapml* \
+		$(JACOBI_1D_IMPER_OBJ) bin/jacobi-1d-imper* \
+		$(JACOBI_2D_IMPER_OBJ) bin/jacobi-2d-imper* \
 		$(REGDETECT_OBJ) bin/10.regdetect* \
 	 	
