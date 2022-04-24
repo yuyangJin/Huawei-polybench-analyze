@@ -16,7 +16,8 @@ UTIL_OBJ=utilities/polybench.o
 
 BIN=01.adi \
 	02.seidel2d \
-	03.regdetect \
+	03.fdtd2d \
+	04.regdetect \
 
 all: $(BIN)
 
@@ -34,11 +35,18 @@ SEIDEL2D_OBJ = $(UTIL_OBJ) \
 $(SEIDEL2D_OBJ): %.o: %.c
 	$(CLANG) $(CLANGFLAGS) $(UTIL_INC) $^ -o $@
 
+FDTD2D_OBJ = $(UTIL_OBJ) \
+			stencils/fdtd-2d/fdtd-2d.o
+
+$(FDTD2D_OBJ): %.o: %.c
+	$(CLANG) $(CLANGFLAGS) $(UTIL_INC) $^ -o $@
+
 REGDETECT_OBJ = $(UTIL_OBJ) \
 			medley/reg_detect/reg_detect.o
 
 $(REGDETECT_OBJ): %.o: %.c
 	$(CLANG) $(CLANGFLAGS) $(UTIL_INC) $^ -o $@
+
 
 # make 
 
@@ -56,11 +64,22 @@ $(REGDETECT_OBJ): %.o: %.c
 	llc -O0 bin/$@.bc -filetype=obj -o bin/$@.o
 	$(CLANG) bin/$@.o -o bin/$@ 
 
-03.regdetect: $(REGDETECT_OBJ)
+03.fdtd2d: $(FDTD2D_OBJ)
+	mkdir -p bin
+	llvm-link $^ -o bin/$@.bc
+	llc -O0 bin/$@.bc -filetype=obj -o bin/$@.o
+	$(CLANG) bin/$@.o -o bin/$@ 
+
+
+04.regdetect: $(REGDETECT_OBJ)
 	mkdir -p bin
 	llvm-link $^ -o bin/$@.bc
 	llc -O0 bin/$@.bc -filetype=obj -o bin/$@.o
 	$(CLANG) bin/$@.o -o bin/$@ 
 
 clean:
-	rm -f $(ADI_OBJ) bin/01.adi* $(SEIDEL2D_OBJ) bin/02.seidel2d* $(REGDETECT_OBJ) bin/03.regdetect
+	rm -f $(ADI_OBJ) bin/01.adi* \
+		$(SEIDEL2D_OBJ) bin/02.seidel2d* \
+		$(FDTD2D_OBJ) bin/03.fdtd2d* \
+		$(REGDETECT_OBJ) bin/04.regdetect* \
+	 	
