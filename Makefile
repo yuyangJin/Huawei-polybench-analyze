@@ -15,7 +15,7 @@ UTIL_OBJ=utilities/polybench.o
 
 
 BIN=01.adi \
-	#01.adi.bin 
+	02.seidel2d \
 
 all: $(BIN)
 
@@ -25,6 +25,12 @@ ADI_OBJ = $(UTIL_OBJ) \
 			stencils/adi/adi.o
 
 $(ADI_OBJ): %.o: %.c
+	$(CLANG) $(CLANGFLAGS) $(UTIL_INC) $^ -o $@
+
+SEIDEL2D_OBJ = $(UTIL_OBJ) \
+			stencils/seidel-2d/seidel-2d.o
+
+$(SEIDEL2D_OBJ): %.o: %.c
 	$(CLANG) $(CLANGFLAGS) $(UTIL_INC) $^ -o $@
 
 # make 
@@ -37,5 +43,11 @@ $(ADI_OBJ): %.o: %.c
 
 #-DPOLYBENCH_DUMP_ARRAYS
 
+02.seidel2d: $(SEIDEL2D_OBJ)
+	mkdir -p bin
+	llvm-link $^ -o bin/$@.bc
+	llc -O0 bin/$@.bc -filetype=obj -o bin/$@.o
+	$(CLANG) bin/$@.o -o bin/$@ 
+
 clean:
-	rm -f $(ADI_OBJ) bin/01.adi*
+	rm -f $(ADI_OBJ) bin/01.adi* $(SEIDEL2D_OBJ) bin/02.seidel2d*
