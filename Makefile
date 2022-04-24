@@ -23,6 +23,9 @@ BIN=01.adi \
 	05.jacobi-1d-imper \
 	06.jacobi-2d-imper \
 	10.regdetect \
+	20.durbin \
+	21.dynprog \
+	22.ludcmp \
 
 all: $(BIN)
 
@@ -68,6 +71,24 @@ REGDETECT_OBJ = $(UTIL_OBJ) \
 			medley/reg_detect/reg_detect.o
 
 $(REGDETECT_OBJ): %.o: %.c
+	$(CLANG) $(CLANGFLAGS) $(UTIL_INC) $^ -o $@
+
+DURBIN_OBJ = $(UTIL_OBJ) \
+			linear-algebra/solvers/durbin/durbin.o
+
+$(DURBIN_OBJ): %.o: %.c
+	$(CLANG) $(CLANGFLAGS) $(UTIL_INC) $^ -o $@
+
+DYNPROG_OBJ = $(UTIL_OBJ) \
+			linear-algebra/solvers/dynprog/dynprog.o
+
+$(DYNPROG_OBJ): %.o: %.c
+	$(CLANG) $(CLANGFLAGS) $(UTIL_INC) $^ -o $@
+
+LUDCMP_OBJ = $(UTIL_OBJ) \
+			linear-algebra/solvers/ludcmp/ludcmp.o
+
+$(LUDCMP_OBJ): %.o: %.c
 	$(CLANG) $(CLANGFLAGS) $(UTIL_INC) $^ -o $@
 
 
@@ -117,12 +138,33 @@ $(REGDETECT_OBJ): %.o: %.c
 	$(LLC) $(LLCFLAGS) bin/$@.bc -filetype=obj -o bin/$@.o
 	$(CLANG) bin/$@.o -o bin/$@ 
 
+20.durbin: $(DURBIN_OBJ)
+	mkdir -p bin
+	llvm-link $^ -o bin/$@.bc
+	$(LLC) $(LLCFLAGS) bin/$@.bc -filetype=obj -o bin/$@.o
+	$(CLANG) bin/$@.o -o bin/$@ 
+
+21.dynprog: $(DYNPROG_OBJ)
+	mkdir -p bin
+	llvm-link $^ -o bin/$@.bc
+	$(LLC) $(LLCFLAGS) bin/$@.bc -filetype=obj -o bin/$@.o
+	$(CLANG) bin/$@.o -o bin/$@ 
+
+22.ludcmp: $(LUDCMP_OBJ)
+	mkdir -p bin
+	llvm-link $^ -o bin/$@.bc
+	$(LLC) $(LLCFLAGS) bin/$@.bc -filetype=obj -o bin/$@.o
+	$(CLANG) bin/$@.o -o bin/$@ 
+
 clean:
 	rm -f $(ADI_OBJ) bin/01.adi* \
 		$(SEIDEL2D_OBJ) bin/02.seidel2d* \
 		$(FDTD2D_OBJ) bin/03.fdtd2d* \
 		$(FDTDAPML_OBJ) bin/04.fdtdapml* \
-		$(JACOBI_1D_IMPER_OBJ) bin/jacobi-1d-imper* \
-		$(JACOBI_2D_IMPER_OBJ) bin/jacobi-2d-imper* \
+		$(JACOBI_1D_IMPER_OBJ) bin/05.jacobi-1d-imper* \
+		$(JACOBI_2D_IMPER_OBJ) bin/06.jacobi-2d-imper* \
 		$(REGDETECT_OBJ) bin/10.regdetect* \
+		$(DURBIN_OBJ) bin/20.durbin* \
+		$(DYNPROG_OBJ) bin/21.dynprog* \
+		$(LUDCMP_OBJ) bin/22.ludcmp* \
 	 	
